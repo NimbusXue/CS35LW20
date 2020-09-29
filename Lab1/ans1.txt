@@ -1,0 +1,107 @@
+1. man -k [command name]
+
+2./usr/bin/mv    /usr/bin/sh
+  command used:which mv  
+               which sh
+
+3.pr - convert text files for printing
+  ar - create, modify, and extract from archives
+  tr - translate or delete characters
+  command used:find /usr/bin -executable -name "?r"
+               man pr
+               man ar
+               man tr
+                 
+4./usr/bin/emacs-24.3
+  command used:cd /usr/bin 
+               ls -l emacs
+               ls -l /etc/alternatives/emacs
+
+5./usr/bin/gcc gcc version 4.8.5 20150623 (Red Hat 4.8.5-39) (GCC) 
+   plain gcc gcc version 9.2.0 (GCC) 
+   plain gcc is under /usr/local/cs/bin/gcc instead of /usr/bin/gcc
+   command used:/usr/bin/gcc -v 
+                gcc -v
+                 which gcc
+
+6.u+sx add set user or group ID on execution and execution permission to user
+  o-w   remove write permission from other
+        command used: man chmod
+
+7. 101
+/usr/local/cs
+/usr/local/cs/src/grep
+/usr/local/cs/src/grep/RCS
+/usr/local/cs/share/info
+/usr/local/cs/share/man/man1
+command used:find /usr/local/cs -type d -mtime -28
+             wc -l file.txt
+
+8. 254
+   command used:
+    which find
+    find /usr/bin/ -type l 
+    wc -l Nsymboliclink.txt
+
+9.librom1394.so.0.3.0
+  command used:
+  ls -lat
+
+10. When invoked without arguments, locale displays the current locale set‐
+       tings  for  each locale category (see locale(5)), based on the settings
+       of the environment variables that control the locale 
+    command used:
+    man locale 
+    
+    
+11. downcase-dwim                  
+    downcase-region                
+    downcase-word  
+    command used:
+    C-h a downcase
+  
+12.C-M-r runs the command isearch-backward-regexp
+   C-M-s runs the command isearch-forward-regex
+   C-M-t runs the command transpose-sexps
+   C-M-u runs the command backward-up-list
+   C-M-v runs the command scroll-other-window
+command used:C-h c KEYSTROKE
+   
+13.C-g runs the command keyboard-quit
+  keyboard-quit is an interactive compiled Lisp function in ‘simple.el’.
+It is bound to C-g.
+(keyboard-quit)
+Signal a ‘quit’ condition.
+During execution of Lisp code, this character causes a quit directly.
+At top-level, as an editor command, this simply beeps.
+command used:C-h c KEYSTROKE
+             C-h f keyboard-quit
+
+14.
+yank is an interactive compiled Lisp function in ‘simple.el’.
+It is bound to C-y, <S-insertchar>, <S-insert>, <menu-bar> <edit>
+<paste>.
+(yank &optional ARG)
+Reinsert ("paste") the last stretch of killed text.
+More precisely, reinsert the most recent kill, which is the
+stretch of killed text most recently killed OR yanked.  Put point
+at the end, and set mark at the beginning without activating it.
+With just C-u as argument, put point at beginning, and mark at end.
+command used:C-h f yank
+
+
+15.
+when using dired,  total used in directory 300284 available 12773124
+when using ls -l   total 300208 
+Dired showed the total used and available while ls -l does not show that. 
+ 
+Dired makes an Emacs buffer containing a listing of a directory, and
+optionally some of its subdirectories as well.  You can use the normal
+Emacs commands to move around in this buffer, and special Dired commands
+to operate on the listed files.  Dired works with both local and remote
+directories.
+command used:C-h f dired
+             C-x d /usr/bin/
+             cd /usr/bin/
+             ls -l
+             
