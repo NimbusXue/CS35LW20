@@ -1,0 +1,120 @@
+1. command used: export LC_ALL = ‘C’
+   to make sure that I am in standard C locale
+
+2. command used: sort /usr/share/dict/words>words
+   to sort the file and put the sorted words into a file named words
+
+3. command used: wget https://web.cs.ucla.edu/classes/winter20/cs35L/assign/assign2.html
+   to download the webpage into a file named assign2.html
+
+4. command used: tr -c 'A-Za-z' '[\n*]' < assign2.html 
+   to translate all the non-alphabetic characters into new lines.
+   -c means the complement of  'A-Za-z’, 'A-Za-z' means all the letters,
+    \n* means one or more new lines.
+
+5. command used: tr -cs 'A-Za-z' '[\n*]'< assign2.html 
+   to translate all the non-alphabetic characters into new lines and then squeeze the new lines so that there are only single occurrence of new line each time.
+
+6. command used: tr -cs 'A-Za-z' '[\n*]'<assign2.html | sort 
+    to translate all the non-alphabetic characters into new lines and squeeze the new lines and then sort them by alphabetic order so that the output is just the alphabetic sorted version of the previous word list
+
+7. command used:  tr -cs 'A-Za-z' '[\n*]'<assign2.html | sort -u
+   compared with the previous word list, it replaces repeated occurrence of the the same word with only single occurrence 
+  
+8. command used: tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm - words
+   compare the output in 7(the previous command output) with the content in “words” file, and separate them into three columns.
+   the first column contains only words unique to the previous output
+   the second column contains only words unique to the “words” file
+   the third column contains words that are shared by both files.
+
+9. command used: tr -cs 'A-Za-z' '[\n*]'<assign2.html | sort -u | comm -23 - words
+    -23 suppress column 2 and column 3, so it will only output the first column, which contains only words unique to the output in 7.
+
+10. command used: wget https://www.mauimapp.com/moolelo/hwnwdshw.htm
+    to download the webpage into a file called hwnwdshw.htm
+
+11. command used: emacs buildwords
+       script:
+#! /bin/bash                                                                              
+
+# find all lines of the form A<tdX>W</td>Z                                              
+    grep "<td.*" |
+
+# remove all the html tags                                                              
+    sed 's/<[^>]*>//g' |
+
+#remove all the '?'                                                                     
+    sed 's/\?//g' |
+
+# remove all the '<u>' and  ‘</u>’                                                      
+    sed 's/<u>//g' |
+    sed 's/<\/u>//g' |
+
+# convert uppercase letters into lowercase letters and convert ` to '                   
+    tr "A-Z\`" "a-z\'" |
+
+#delete line1 to line4,which are left over html stuff                                   
+    sed '1,4d' |
+
+# remove all empty lines                                                                
+    awk NF |
+
+#keep all the odd number of lines, which are the ones containing hawaiian words         
+    sed 'n; d' |
+
+#remove blank spaces at the beginning of each line                                      
+    sed 's/^\s*//g' |
+
+#remove blank spaces at the end of each line                                            
+    sed 's/\s*$//g' |
+
+#separate mutiple words on the same line                                                
+    tr ' ' '\n'|
+
+#replace all non-hawaiian cahracters with new lines ie. -                                                
+    tr -cs "pk\'mnwlhaeiou" "[\n*]"|
+
+
+#sort the words and remove repeated ones                                                
+    sort -u
+
+12. command used: chmod +x buildwords
+ to make the file executable
+
+13. command used: ./buildwords < hwnwdshw.htm > hwords
+   to create the file hwords
+
+14. HAWAIIANCHECKER
+    command used:   tr "A-Z" "a-z" | tr -cs "pk\'mnwlhaeiou" "[\n*]" | sort -u | comm -23 - hwords  
+    translate uppercase to lower case and replace all non hawaiian characters into new lines , sort the file and remove repeated words, use comm to show the first column, which are the words unique to the file only.
+       
+15.   HAWAIIANCHECKER on assign2.html 
+      command used: tr "A-Z" "a-z" <assign2.html | tr -cs "pk\'mnwlhaeiou" "[\n*]" | sort -u | comm -23 - hwords |wc
+      assign2.html: distinct misspelled hawaiian words: 231
+       
+       HAWAIIANCHECKER on hwords
+       command used: tr "A-Z" "a-z" <hwords | tr -cs "pk\'mnwlhaeiou" "[\n*]" | sort -u | comm -23 - hwords  
+        hwords: distinct misspelled hawaiian words: 0
+        
+       ENGLISHCHECKER on assign2.html
+       command used: tr -cs 'A-Za-z' '[\n*]'<assign2.html | sort -u | comm -23 - words|wc
+        assign2.html: distinct misspelled English words: 93
+
+
+16.   create two files that contain misspelled English and Hawaiian words
+
+    command used: tr "A-Z" "a-z" <assign2.html | tr -cs "pk\'mnwlhaeiou" "[\n*]" | sort -u | comm -23 - hwords>Hawaiian_Misspell
+
+    command used: tr -cs 'A-Za-z' '[\n*]'<assign2.html | sort -u | comm -23 - words>English_Misspell
+
+     command used: comm -23 English_Misspell Hawaiian_Misspell 
+                   comm -23 English_Misspell Hawaiian_Misspell|wc
+     the number of distinct words on this very web page that ENGLISHCHECKER reports as misspelled but HAWAIIANCHECKER does not: 88
+     examples: All ALL Although anDrEWS
+
+     command used: comm -13 English_Misspell Hawaiian_Misspell
+                   comm -13 English_Misspell Hawaiian_Misspell|wc 
+                
+      the number of distinct words on this very web page that HAWAIIANCHECKER reports as misspelled but ENGLISHCHECKER does not: 226
+      examples: a 'a ail ailin
+
