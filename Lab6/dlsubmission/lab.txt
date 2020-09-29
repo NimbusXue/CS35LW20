@@ -1,0 +1,294 @@
+1.Compile, build and run the program simpgmp.c in C
+command used:wget https://web.cs.ucla.edu/classes/winter20/cs35L/assign/simpgmp.c
+             gcc -lgmp simpgmp.c -o simpgmp
+2. command used: ./simpgmp 24
+         result: 16777216
+   command used: ./simpgmp 16777216 >output.txt
+                 emacs output.txt
+                 C e (to get to the end of the file)
+   hence by examine the file output.txt using emacs, we can know that it starts 
+with "1818" and ends with "7536". 
+   command used: wc <output.txt
+         result: 1       1 5050447
+   we have 5050447 characters, minus the end of file char, so we have 5,050,446 
+decimal digits.
+ 
+3.command used:ldd simpgmp
+        result:
+	linux-vdso.so.1 =>  (0x00007ffe7ca9e000)
+	libgmp.so.10 => /lib64/libgmp.so.10 (0x00007f95c9ddf000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007f95c9a11000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f95ca057000)
+
+4.command used:strace -c ./simpgmp 16777216
+        result:
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 91.87    0.033081       16541         2           write
+  4.54    0.001635         109        15           munmap
+  3.13    0.001128          11       100           brk
+  0.37    0.000132           5        25           mmap
+  0.09    0.000033           6         6           mprotect
+  0.00    0.000000           0         2           read
+  0.00    0.000000           0         3           open
+  0.00    0.000000           0         3           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.036009                   163         1 total
+
+By looking at the result, the open sys call makes an object file accessible to a
+ program, mmap is used to allocate enough memory for it, then read and write sys call
+ are used to read from the buffer and write info into the memory. Finally, close 
+ sys call is used to close an object file, and munmap is used to free all the memory allocated.
+
+5.command used: ls /usr/bin | awk '(NR-705142227)%251 == 0'
+result:
+ bond2team
+ docbook2ps
+ gnroff
+ isql
+ ln
+ nl-util-addr
+ pmie
+ servertool
+ true
+ zgrep
+
+6. ldd /usr/bin/bond2team
+	not a dynamic executable
+
+   ldd /usr/bin/docbook2ps
+	not a dynamic executable
+
+   ldd /usr/bin/gnroff
+	not a dynamic executable
+
+   ldd /usr/bin/isql
+	linux-vdso.so.1 =>  (0x00007fff6ba39000)
+	libodbc.so.2 => /lib64/libodbc.so.2 (0x00007f616a52d000)
+	libltdl.so.7 => /lib64/libltdl.so.7 (0x00007f616a323000)
+	libreadline.so.6 => /lib64/libreadline.so.6 (0x00007f616a0dd000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x00007f6169ed9000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f6169cbd000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007f61698ef000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x00007f61696c5000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f616a795000)
+
+  ldd /usr/bin/ln
+	linux-vdso.so.1 =>  (0x00007ffc6cf7e000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007fec55775000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fec55b43000)
+
+ ldd /usr/bin/nl-util-addr
+	linux-vdso.so.1 =>  (0x00007ffea9ff3000)
+	libnl-cli-3.so.200 => /lib64/libnl-cli-3.so.200 (0x00007f1c5ecd8000)
+	libnl-nf-3.so.200 => /lib64/libnl-nf-3.so.200 (0x00007f1c5eabf000)
+	libnl-genl-3.so.200 => /lib64/libnl-genl-3.so.200 (0x00007f1c5e8b9000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x00007f1c5e6b5000)
+	libnl-3.so.200 => /lib64/libnl-3.so.200 (0x00007f1c5e494000)
+	libnl-route-3.so.200 => /lib64/libnl-route-3.so.200 (0x00007f1c5e227000)
+	libnl-idiag-3.so.200 => /lib64/libnl-idiag-3.so.200 (0x00007f1c5e01e000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f1c5de02000)
+	libm.so.6 => /lib64/libm.so.6 (0x00007f1c5db00000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007f1c5d732000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f1c5eee3000)
+ 
+ ldd /usr/bin/pmie
+	linux-vdso.so.1 =>  (0x00007ffd051ef000)
+	libpcp.so.3 => /lib64/libpcp.so.3 (0x00007fdc8ec4b000)
+	libm.so.6 => /lib64/libm.so.6 (0x00007fdc8e949000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007fdc8e57b000)
+	libssl3.so => /lib64/libssl3.so (0x00007fdc8e322000)
+	libnss3.so => /lib64/libnss3.so (0x00007fdc8dff3000)
+	libnspr4.so => /lib64/libnspr4.so (0x00007fdc8ddb5000)
+	libsasl2.so.3 => /lib64/libsasl2.so.3 (0x00007fdc8db98000)
+	liblzma.so.5 => /lib64/liblzma.so.5 (0x00007fdc8d972000)
+	libavahi-common.so.3 => /lib64/libavahi-common.so.3 (0x00007fdc8d765000)
+	libavahi-client.so.3 => /lib64/libavahi-client.so.3 (0x00007fdc8d554000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00007fdc8d338000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x00007fdc8d134000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fdc8f11f000)
+	libnssutil3.so => /lib64/libnssutil3.so (0x00007fdc8cf04000)
+	libplc4.so => /lib64/libplc4.so (0x00007fdc8ccff000)
+	libplds4.so => /lib64/libplds4.so (0x00007fdc8cafb000)
+	librt.so.1 => /lib64/librt.so.1 (0x00007fdc8c8f3000)
+	libresolv.so.2 => /lib64/libresolv.so.2 (0x00007fdc8c6da000)
+	libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007fdc8c4a3000)
+	libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x00007fdc8c256000)
+	libkrb5.so.3 => /lib64/libkrb5.so.3 (0x00007fdc8bf6d000)
+	libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x00007fdc8bd3a000)
+	libcom_err.so.2 => /lib64/libcom_err.so.2 (0x00007fdc8bb36000)
+	libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x00007fdc8b926000)
+	libdbus-1.so.3 => /lib64/libdbus-1.so.3 (0x00007fdc8b6d6000)
+	libfreebl3.so => /lib64/libfreebl3.so (0x00007fdc8b4d3000)
+	libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x00007fdc8b2cf000)
+	libselinux.so.1 => /lib64/libselinux.so.1 (0x00007fdc8b0a8000)
+	libsystemd.so.0 => /lib64/libsystemd.so.0 (0x00007fdc8ae77000)
+	libpcre.so.1 => /lib64/libpcre.so.1 (0x00007fdc8ac15000)
+	libcap.so.2 => /lib64/libcap.so.2 (0x00007fdc8aa10000)
+	liblz4.so.1 => /lib64/liblz4.so.1 (0x00007fdc8a7fb000)
+	libgcrypt.so.11 => /lib64/libgcrypt.so.11 (0x00007fdc8a57a000)
+	libgpg-error.so.0 => /lib64/libgpg-error.so.0 (0x00007fdc8a375000)
+	libdw.so.1 => /lib64/libdw.so.1 (0x00007fdc8a124000)
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007fdc89f0e000)
+	libattr.so.1 => /lib64/libattr.so.1 (0x00007fdc89d09000)
+	libelf.so.1 => /lib64/libelf.so.1 (0x00007fdc89af1000)
+	libz.so.1 => /lib64/libz.so.1 (0x00007fdc898db000)
+	libbz2.so.1 => /lib64/libbz2.so.1 (0x00007fdc896cb000)
+
+ldd /usr/bin/servertool
+	linux-vdso.so.1 =>  (0x00007ffcf65f3000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00007fe285399000)
+	libz.so.1 => /lib64/libz.so.1 (0x00007fe285183000)
+	libjli.so => not found
+	libdl.so.2 => /lib64/libdl.so.2 (0x00007fe284f7f000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007fe284bb1000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fe2855b5000)
+
+ldd /usr/bin/true
+	linux-vdso.so.1 =>  (0x00007ffc2534b000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007f916f604000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f916f9d2000)
+
+ldd /usr/bin/zgrep
+	not a dynamic executable
+
+
+Below are commands with error messages:
+ldd /usr/bin/bond2team
+	not a dynamic executable
+
+ldd /usr/bin/docbook2ps
+	not a dynamic executable
+
+ldd /usr/bin/gnroff
+	not a dynamic executable
+
+ldd /usr/bin/zgrep
+	not a dynamic executable
+
+Those four files are not dynamic executable because they have no dynamically linked 
+shared libraries.
+
+By using the file command on those files, we notice that:
+file /usr/bin/bond2team
+/usr/bin/bond2team: Bourne-Again shell script, ASCII text executable
+
+ file /usr/bin/docbook2ps
+/usr/bin/docbook2ps: POSIX shell script, ASCII text executable
+
+ file  /usr/bin/gnroff
+/usr/bin/gnroff: symbolic link to `nroff'
+
+ file /usr/bin/zgrep
+/usr/bin/zgrep: POSIX shell script, ASCII text executable
+
+file /usr/bin/pmie
+/usr/bin/pmie: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), 
+for GNU/Linux 2.6.32, BuildID[sha1]=445b16d14cdbd58d116a6c5e07afca06f5ef823c, stripped
+
+And all the rest files are ELF 64-bit LSB executable, or symbolic link to  ELF 64-bit 
+LSB executable.
+
+
+7. command used:
+ ldd /usr/bin/isql /usr/bin/ln /usr/bin/nl-util-addr /usr/bin/pmie /usr/bin/servertool /usr/bin/true|sed 's/(.*)$//g'|grep so|sort -u
+
+use sed 's/(.*)$//g' to remove the unique address and then use grep so to grep 
+every dynamic library and finally use sort -u to sort and omit duplicates.
+
+   result:
+ldd /usr/bin/isql /usr/bin/ln /usr/bin/nl-util-addr /usr/bin/pmie /usr/bin/servertool /usr/bin/true|sed 's/(.*)$//g'|grep so|sort -u
+	/lib64/ld-linux-x86-64.so.2 
+	libattr.so.1 => /lib64/libattr.so.1 
+	libavahi-client.so.3 => /lib64/libavahi-client.so.3 
+	libavahi-common.so.3 => /lib64/libavahi-common.so.3 
+	libbz2.so.1 => /lib64/libbz2.so.1 
+	libcap.so.2 => /lib64/libcap.so.2 
+	libcom_err.so.2 => /lib64/libcom_err.so.2 
+	libcrypt.so.1 => /lib64/libcrypt.so.1 
+	libc.so.6 => /lib64/libc.so.6 
+	libdbus-1.so.3 => /lib64/libdbus-1.so.3 
+	libdl.so.2 => /lib64/libdl.so.2 
+	libdw.so.1 => /lib64/libdw.so.1 
+	libelf.so.1 => /lib64/libelf.so.1 
+	libfreebl3.so => /lib64/libfreebl3.so 
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 
+	libgcrypt.so.11 => /lib64/libgcrypt.so.11 
+	libgpg-error.so.0 => /lib64/libgpg-error.so.0 
+	libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 
+	libjli.so => not found
+	libk5crypto.so.3 => /lib64/libk5crypto.so.3 
+	libkeyutils.so.1 => /lib64/libkeyutils.so.1 
+	libkrb5.so.3 => /lib64/libkrb5.so.3 
+	libkrb5support.so.0 => /lib64/libkrb5support.so.0 
+	libltdl.so.7 => /lib64/libltdl.so.7 
+	liblz4.so.1 => /lib64/liblz4.so.1 
+	liblzma.so.5 => /lib64/liblzma.so.5 
+	libm.so.6 => /lib64/libm.so.6 
+	libnl-3.so.200 => /lib64/libnl-3.so.200 
+	libnl-cli-3.so.200 => /lib64/libnl-cli-3.so.200 
+	libnl-genl-3.so.200 => /lib64/libnl-genl-3.so.200 
+	libnl-idiag-3.so.200 => /lib64/libnl-idiag-3.so.200 
+	libnl-nf-3.so.200 => /lib64/libnl-nf-3.so.200 
+	libnl-route-3.so.200 => /lib64/libnl-route-3.so.200 
+	libnspr4.so => /lib64/libnspr4.so 
+	libnss3.so => /lib64/libnss3.so 
+	libnssutil3.so => /lib64/libnssutil3.so 
+	libodbc.so.2 => /lib64/libodbc.so.2 
+	libpcp.so.3 => /lib64/libpcp.so.3 
+	libpcre.so.1 => /lib64/libpcre.so.1 
+	libplc4.so => /lib64/libplc4.so 
+	libplds4.so => /lib64/libplds4.so 
+	libpthread.so.0 => /lib64/libpthread.so.0 
+	libreadline.so.6 => /lib64/libreadline.so.6 
+	libresolv.so.2 => /lib64/libresolv.so.2 
+	librt.so.1 => /lib64/librt.so.1 
+	libsasl2.so.3 => /lib64/libsasl2.so.3 
+	libselinux.so.1 => /lib64/libselinux.so.1 
+	libssl3.so => /lib64/libssl3.so 
+	libsystemd.so.0 => /lib64/libsystemd.so.0 
+	libtinfo.so.5 => /lib64/libtinfo.so.5 
+	libz.so.1 => /lib64/libz.so.1 
+	linux-vdso.so.1 =>  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
