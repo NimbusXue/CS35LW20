@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# find all lines of the form A<tdX>W</td>Z                                     
+    grep "<td.*" |
+    
+# remove all the html tags                                                     
+    sed 's/<[^>]*>//g' |    
+
+#remove all the '?'
+    sed 's/\?//g' |
+
+# remove all the '<u>' and  ‘</u>’
+    sed 's/<u>//g' |
+    sed 's/<\/u>//g' |
+
+# convert uppercase letters into lowercase letters and convert ` to '
+    tr "A-Z\`" "a-z\'" |
+
+#delete line1 to line4,which are left over html stuff
+    sed '1,4d' |
+   
+# remove all empty lines
+    awk NF |
+
+#keep all the odd number of lines, which are the ones containing hawaiian words
+    sed 'n; d' |
+   
+#remove blank spaces at the beginning of each line
+    sed 's/^\s*//g' |
+
+#remove blank spaces at the end of each line   
+    sed 's/\s*$//g' |
+
+#separate mutiple words on the same line
+    tr ' ' '\n'|
+
+#replace all non-hawaiian cahracters with new lines ie. -
+    tr -cs "pk\'mnwlhaeiou" "[\n*]"|
+
+#sort the words and remove repeated ones
+    sort -u
+
+    
