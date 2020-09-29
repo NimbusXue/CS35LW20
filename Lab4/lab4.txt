@@ -1,0 +1,161 @@
+1. download the coreutils and unzip it
+   command used: 
+   		wget https://web.cs.ucla.edu/classes/winter20/
+                cs35L/assign/coreutils-with-bug.tar.gz
+   		tar -xzvf coreutils-with-bug.tar.gz
+
+2.try to compile and install your copy of Coreutils into a temporary directory of my own
+  command used:
+               mkdir coreutilsinstall_lab4
+               cd coreutils-with-bug
+               ./configure --prefix=/w/home.22/class/classjxu/coreutilsinstall_lab4
+               make
+  
+  These errors popped up:
+  In file included from utimecmp.c:41:
+utimens.h:2:5: error: conflicting types for 'futimens'
+    2 | int futimens (int, char const *, struct timespec const [2]);
+      |     ^~~~~~~~
+In file included from utimecmp.h:25,
+                 from utimecmp.c:25:
+/usr/include/sys/stat.h:373:12: note: previous declaration of 'futimens' was here
+  373 | extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
+      |            ^~~~~~~~
+make[3]: *** [Makefile:659: utimecmp.o] Error 1
+make[3]: Leaving directory '/w/home.22/class/classjxu/coreutils-with-bug/lib'
+make[2]: *** [Makefile:414: all] Error 2
+make[2]: Leaving directory '/w/home.22/class/classjxu/coreutils-with-bug/lib'
+make[1]: *** [Makefile:419: all-recursive] Error 1
+make[1]: Leaving directory '/w/home.22/class/classjxu/coreutils-with-bug'
+make: *** [Makefile:357: all] Error 2
+
+3. The error seems to be conflicting types for 'futimens', which was declared twice, 
+so I downloaded the patch file to fix it.
+   command used:
+               wget https://web.cs.ucla.edu/classes/winter20/cs35L/assign/coreutils.diff
+               patch -p0<coreutils.diff
+               make
+               make install
+No errors popped up after applying the patch file. It's probably because the patch file 
+solves the renaming issue about the double declaration of the conflicting types for 'futimens'.
+
+4.Reproduce the problem.
+   command used:
+                $ tmp=$(mktemp -d)
+                $ cd $tmp
+	        $ touch -d '1918-11-11 11:00 GMT' wwi-armistice-cs35L
+		$ touch now
+		$ sleep 1
+		$ touch now1
+		$ TZ=UTC0 ~/coreutilsinstall_lab4/bin/ls -lt --full-time 
+                   wwi-armistice-cs35L now now1
+   I got the result:
+-rw-r--r-- 1 classjxu class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice-cs35L
+-rw-r--r-- 1 classjxu class 0 2020-02-08 23:34:27.353154766 +0000 now1
+-rw-r--r-- 1 classjxu class 0 2020-02-08 23:34:19.431912193 +0000 now           
+              
+                  
+wwi-armistice-cs35L appears in front of now and now1, bug was reproduced.
+
+5.Use a debugger to figure out what went wrong and to fix the corresponding source file.
+  command used:  
+                cd $tmp
+                gdb ~/coreutilsinstall_lab4/bin/ls
+                info functions
+By using the command info functions, I was able to look through all the functions 
+contained in the file ls.c.  since the order of the result is wrong, I think the
+ problem is about comparing different file access and modification time, so I 
+closely examine the functions with name compare.
+ command used:
+                list compare_atime
+		list compare_ctime
+		list compare_mtime
+                
+ By listing those three functions, I found out they all tried to compare by using the function "timespec_cmp", so I decided to look closely into the function timespec_cmp.
+                 
+ 	timespec_cmp (struct timespec a, struct timespec b)
+47	{
+48	  int diff = a.tv_sec - b.tv_sec;
+49	  return diff ? diff : a.tv_nsec - b.tv_nsec;
+50	}
+
+This kind of comparison by using subtraction may evoke overflow and then return unexpected 
+value, thus causing an error.
+ 
+Then I try to find the file containing the function in ~/coreutils-with-bug/lib
+command used:
+            ls ~/coreutils-with-bug/lib|grep timespec
+
+I found the file "timespec.h"
+ 
+6. To Construct a new patch file lab4.diff
+command used:
+            cd ~/coreutils-with-bug/lib
+            cp timespec.h timespec_fix.h
+            emacs timespec_fix.h
+
+Edit the function timespec_cmp
+static inline int
+timespec_cmp (struct timespec a, struct timespec b)
+{
+  if(a.tv_sec > b.tv_sec)
+    return 1;
+  if(a.tv_sec < b.tv_sec)
+    return -1;
+  if(a.tv_sec == b.tv_sec)
+    return a.tv_nsec - b.tv_nsec;
+}
+
+command used:
+            cd ~/coreutils-with-bug
+            diff -u lib/timespec.h lib/timespec_fix.h >~/coreutils-with-bug/lab4.diff
+            emacs lab4.diff
+Add a ChangeLog entry followed by a diff -u patch:
+ 
+2020-02-08 Jiaxuan Xue <nimbusxue1015@g.ucla.edu>                               
+                                                                                
+* timespec.h(timespec_fix.h):Change comparision method to avoid overflow        
+diff -u lib/timespec.h lib/timespec_fix.h      
+
+7.Apply the patch and make a new directory to install the file
+command used:
+            patch -p0<lab4.diff
+            cd ~
+            mkdir coreutilsinstall_lab4_v2
+            cd coreutils-with-bug
+            ./configure --prefix=/w/home.22/class/classjxu/coreutilsinstall_lab4_v2
+            make
+            make install
+
+8.Test the fixed version
+command used:
+            cd $tmp
+            TZ=UTC0 ~/coreutilsinstall_lab4_v2/bin/ls -lt --full-time wwi-armistice-cs35L now now1
+
+output:
+-rw-r--r-- 1 classjxu class 0 2020-02-09 05:07:54.007612776 +0000 now1
+-rw-r--r-- 1 classjxu class 0 2020-02-09 05:07:50.225496609 +0000 now
+-rw-r--r-- 1 classjxu class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice-cs35L 
+
+The output is now correct
+
+9. To reproduce the problem on the home directory.
+command used: 
+             cd ~
+             touch -d '1918-11-11 11:00 GMT' wwi-armistice-cs35L
+             touch now
+             sleep 1
+             touch now1
+             TZ=UTC0 ls -lt --full-time wwi-armistice-cs35L now now1
+output:
+-rw-r--r-- 1 classjxu class 0 2054-12-17 17:28:16.000000000 +0000 wwi-armistice-cs35L
+-rw-r--r-- 1 classjxu class 0 2020-02-09 05:52:36.907391000 +0000 now1
+-rw-r--r-- 1 classjxu class 0 2020-02-09 05:52:28.091567000 +0000 now
+The order is correct according to the output time, but the time stamp of the old file 
+wwi-armistice-cs35L was automatically changed from 1918-11-11 11:00 GMT to 2054-12-17 17:28:16  
+     
+
+
+
+
+           
