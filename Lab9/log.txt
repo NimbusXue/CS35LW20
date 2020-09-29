@@ -1,0 +1,77 @@
+JIAXUAN XUE
+705142227
+
+1.Log into lnxsrv09 and verify ~/.ssh directory
+  command used: ssh classjxu@lnxsrv09.seas.ucla.edu
+                cd ~/.ssh
+2.Generate SSH keys
+  command used:ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/u/eng/class/classjxu/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /u/eng/class/classjxu/.ssh/id_rsa.
+Your public key has been saved in /u/eng/class/classjxu/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:P0x+LT1KuFaHs2FQoZ/UCgS/PTJrpDw/e+ZurBKrUgI classjxu@lnxsrv09.seas.ucla.edu
+The key's randomart image is:
++---[RSA 2048]----+
+|        ... ..   |
+|         o ...   |
+|          +.. .  |
+|  E       .* o   |
+|   .    S *.*.   |
+|    . ...B =*+.  |
+|     o  +oO++=+  |
+|    .   o+o=*o . |
+|     ... o=X+    |
++----[SHA256]-----+
+
+3.Copy the public key to the server
+ command used:ssh-copy-id classjxu@lnxsrv07.seas.ucla.edu
+
+4.Confirm we can login with SSH key
+command used: ssh classjxu@lnxsrv07.seas.ucla.edu
+Enter passphrase for key '/u/eng/class/classjxu/.ssh/id_rsa': 
+
+5.Use ssh-agent to manage authentication
+ command used: eval "$(ssh-agent -s)"
+       output: Agent pid 31284
+ command used: ssh-add
+Enter passphrase for /u/eng/class/classjxu/.ssh/id_rsa: 
+Identity added: /u/eng/class/classjxu/.ssh/id_rsa (/u/eng/class/classjxu/.ssh/id_rsa)
+try log into lnxsrv07 again, this time no passphrase prompt
+
+
+6.Use port-forwarding with X11
+command used:ssh -X classjxu@lnxsrv09.seas.ucla.edu
+             eval "$(ssh-agent -s)"
+             ssh-add
+             ssh -X classjxu@lnxsrv07.seas.ucla.edu
+             xeyes
+After typing the xeyes command on the remote host lnxsrv07, I get 
+ a graphical window on my host display.
+
+7.Multi-hop SSH
+log back into lnxsrv09 again
+command used:ssh classjxu@lnxsrv09.seas.ucla.edu
+             eval "$(ssh-agent -s)"
+             ssh-add
+Copy the public key to the another server 
+command used:ssh-copy-id classjxu@lnxsrv10.seas.ucla.edu
+           
+use the '-A' to enable 'agent forwarding'
+command used:[classjxu@lnxsrv09 ~]$ ssh -A classjxu@lnxsrv07.seas.ucla.edu
+successfully login with no passphrase prompt
+command used:[classjxu@lnxsrv07 ~]$ ssh -A classjxu@lnxsrv10.seas.ucla.edu
+successfully login with no passphrase prompt
+command used:[classjxu@lnxsrv10 ~]$ ssh -A classjxu@lnxsrv07.seas.ucla.edu
+successfully login with no passphrase prompt
+so multihop succeeds, I can ssh into lnxsrv07, and then from lnxsrv07 to lnxsrv10, and so on if I add more hosts with the same steps above.
+
+
+
+
+
+
+
