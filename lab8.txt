@@ -1,0 +1,103 @@
+JIAXUAN XUE
+705142227
+
+1.command used:
+ cd ~eggert/src/gnu/emacs-CS-35L 
+ du -sh .
+
+output: 509M	.
+
+ du -sh .git
+output: 350M	.git
+
+so the disk space used to represent the working files is 509M-350M=159M,
+the disk space used to represent the Git repository is 350M.
+ 
+To find the files consume most of the repository space, I used  du -h under the directory /u/cs/fac/eggert/src/gnu/emacs-CS-35L/.git and I found out that
+ ./objects consists 342M of the total 350M, with the two files 
+335M	./objects/pack
+7.8M	./objects/info
+so the files in .git/objects consume the most amount of space because it serves as the object database and stores all of blobs, trees, and commits.
+
+2. command used：git branch | wc -l
+                 git branch -r| wc -l
+
+number of local branches:176
+number of remote branches:177
+
+3. command used:git remote -v
+origin	https://git.savannah.gnu.org/git/emacs.git (fetch)
+origin	https://git.savannah.gnu.org/git/emacs.git (push)
+
+There one repository remote to this repository, located at the above URL.
+
+4.command used:git for-each-ref --sort=-committerdate refs/heads/ | head -n10
+Ten local branches most recently committed to:
+19aecd340b7b3ab54629b790ba70a90130bad63d commit	refs/heads/master
+d2873706749ef68803e79bab6109a534f4c9d23a commit	refs/heads/scratch/joaot/make-completion-at-point-function
+dd3fa9411a28175f9a1a984a69cfa7162023c5df commit	refs/heads/feature/windows-with-utils
+8f22251e595d7598d6643b0d24bf5f409dc59fa8 commit	refs/heads/scratch/completion-api
+8a4de19dfb52551a65c360a9346ede137d0fc6e8 commit	refs/heads/scratch/a-modest-completion-redesign-proposal
+2b0f589134d9427a96ab8cf0d8473715740984ef commit	refs/heads/scratch/fido-mode
+924a4201d24c10c48db920815ebf98dfaadc1e85 commit	refs/heads/feature/gnus-select2
+7a10082093791f0e035e4f9f95a774a7be1cd586 commit	refs/heads/feature/extend_face_id
+079461b360a2467ff4ab2ec57516c6f9e45f50fe commit	refs/heads/scratch/jit-lock-antiblink-cleaned-up
+55dcd32ad2209dc34bfb6b713bf73be9bf4c4cb2 commit	refs/heads/emacs-26
+
+5.command used:
+git rev-list --count master
+output:139583
+There are 139583 commits in the master branch.
+
+6.command used:
+git rev-list --count --all
+output:143910
+There are 143910 commits in total.
+percentage:139583/143910=96.99%
+
+7.use git shortlog command and use -s -n option to summarize and sort, use --since to determine the date, finally pipeline into head to get the top ten lines. 
+  command used:git shortlog -s -n --since=2013-01-01|head
+  3691	Eli Zaretskii
+  3644	Glenn Morris
+  3604	Paul Eggert
+  1806	Lars Ingebrigtsen
+  1784	Stefan Monnier
+  1571	Michael Albinus
+   619	Dmitry Gutov
+   576	Noam Postavsky
+   471	Alan Mackenzie
+   469	Juri Linkov
+
+
+8.use gitk to visualize the graph
+        1.4ea37c2b8b0c5a68fde59770c3536195e0972217
+	2.977cd6cb28a37744966ec62f70cf62659f6f302a
+	3.625cee531623feddbe3174fad52c7db96ec60bb3
+	4.5490ccc5ebf39759dfd084bbd31f464701a3e775
+	5.0c06b93c1e467debd401eb0b3be4652fde14fa95
+	6.820739bbb572b30b6ce45756c9960e48dca859af
+	7.00e4e3e9d273a193620c3a4bb4914e555cb8e343
+	8.49cd561dc62ea6b3fbedab7aef0f020733f4cf09
+	9.abcb2e62dae6aa26308f7ac9efc89247f89cbe65
+	10.98ac36efe4ce4bd3a0bca76fc73ce6c7abaa4371
+
+ 10------\
+ |        \
+ 9------\ |
+ |       \|
+ |        8
+ |        |
+ |     7__|
+ |    /
+ |   /
+ 5  6
+ |\ |
+ | \|
+ |  | 
+ |  --4 
+ |    |   
+ |    |
+ 2    3
+ \   /
+  \ /
+   1
