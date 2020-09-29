@@ -1,0 +1,296 @@
+1.I wrote detailed codes and comments in the file tr2b.c
+
+2.I wrote detailed codes and comments in the file tr2u.c
+
+3.Test it on a big file with 5000000 bytes
+  command used:head --bytes=5000000 /dev/urandom > output.txt
+  
+3(a)
+compare the system calls issued by your tr2b and tr2u commands
+when copying one file to another
+  command used: strace -c ./tr2b 'A' 'B' <output.txt >copyb.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 68.26    0.001058           2       611           write
+ 30.77    0.000477           1       613           read
+  0.52    0.000008           2         4           fstat
+  0.45    0.000007           1         9           mmap
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.001550                  1250         1 total
+   tr2b takes only 0.001550 second with just 1250 calls.
+ 
+  command used:strace -c ./tr2u 'A' 'B' <output.txt >copyu.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 54.86   21.948284           4   5000000           write
+ 45.14   18.058305           4   5000002           read
+  0.00    0.000093          13         7           mmap
+  0.00    0.000063          16         4           mprotect
+  0.00    0.000032          16         2           open
+  0.00    0.000023          23         1           munmap
+  0.00    0.000016           8         2           fstat
+  0.00    0.000016          16         1         1 access
+  0.00    0.000014           7         2           close
+  0.00    0.000014          14         1           execve
+  0.00    0.000008           8         1           brk
+  0.00    0.000008           8         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   40.006876              10000024         1 total
+  tr2u takes 40.006876 seconds and 10000024 calls, which is much more than tr2b
+because tr2b uses C library functions and buffered I/O decreases the number of 
+read/write system calls and the corresponding overhead.
+
+
+3(b)
+compare the system calls issued by your tr2b and tr2u commands
+when copying a file to your terminal
+   command used: strace -c ./tr2b 'A' 'B' <output.txt 
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 97.81    0.111043           6     19928           write
+  2.19    0.002485           4       613           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         9           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.113528                 20567         1 total
+  tr2b takes 0.113528 second and 20567 calls and it takes longer time and much more  
+write system calls than copying one file to another.
+
+ command used: strace -c ./tr2u 'A' 'B' <output.txt 
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 56.72   25.908999           5   5000000           write
+ 43.28   19.766590           4   5000002           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         7           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   45.675589              10000024         1 total
+   tr2u takes 45.675589 seconds and 10000024 calls, which is similar to the result 
+from copying one file to another, except it requires a bit more time(from 40 to 45).
+
+
+4.Time comparison
+ command used:time ./tr2b 'A' 'B' <output.txt >t1.txt 
+	real	0m0.256s
+	user	0m0.187s
+	sys	0m0.011s
+
+ command used:time ./tr2u 'A' 'B' <output.txt >t2.txt 
+	real	0m12.558s
+	user	0m3.184s
+	sys	0m9.330s
+  
+ command used:time ./tr2b 'A' 'B' <output.txt
+	real	0m3.256s
+	user	0m0.274s
+	sys	0m0.095s
+
+ command used:time ./tr2u 'A' 'B' <output.txt
+	real	0m11.743s
+	user	0m3.331s
+	sys	0m8.393s
+According to the result, tr2b is much faster than tr2u because tr2b uses C library
+functions getchar() and putchar() to avoid system call overhead. tr2b read from
+STDIN and write to STDOUT. Stdout is buffered,Buffered output improves I/O 
+performance and can reduce system calls. tr2u uses read and write function to read 
+and write a single byte at a time, instead of using getchar and putchar. 
+
+HW
+1.Measure any differences in performance between sfrob and sfrobu
+command used:
+ruby -e 'x=STDIN.readlines;y=[];0.times do; y<<x[rand(x.size)].chomp end; puts y.join(" ");' < /usr/share/dict/words > zero
+
+ruby -e 'x=STDIN.readlines;y=[];100.times do; y<<x[rand(x.size)].chomp end; puts y.join(" ");' < /usr/share/dict/words > hundred
+
+ruby -e 'x=STDIN.readlines;y=[];10000.times do; y<<x[rand(x.size)].chomp end; puts y.join(" ");' < /usr/share/dict/words > Tenthousand
+
+ruby -e 'x=STDIN.readlines;y=[];1000000.times do; y<<x[rand(x.size)].chomp end; puts y.join(" ");' < /usr/share/dict/words > million
+
+I used this command to generate file with 0,100,10000,1000000 words separated by spaces.
+
+command used: time ./sfrobu < zero 
+real	0m0.003s
+user	0m0.000s
+sys	0m0.002s
+
+
+command used: time ./sfrob < zero 
+real	0m0.003s
+user	0m0.000s
+sys	0m0.002s
+
+command used: time ./sfrobu < hundred
+real	0m0.007s
+user	0m0.001s
+sys	0m0.006s 
+
+command used:time ./sfrob < hundred
+real	0m0.004s
+user	0m0.000s
+sys	0m0.003s 
+
+command used: time ./sfrobu < Tenthousand
+real	0m0.471s
+user	0m0.152s
+sys	0m0.318s
+
+command used: time ./sfrob < Tenthousand
+real	0m0.017s
+user	0m0.013s
+sys	0m0.001s
+
+command used:  time ./sfrobu < million
+real	0m32.198s
+user	0m9.642s
+sys	0m22.500s
+
+command used:  time ./sfrob < million
+real	0m5.661s
+user	0m2.438s
+sys	0m0.208s
+
+conclusion: sfrob takes much less time than sfrobu on the same file.
+
+Function estimate:
+  the CPU time cost: t 
+  the number of input lines: n
+  t         n
+ 0m0.003s   0 
+ 0m0.007s   100
+ 0m0.471s   10000
+0m32.198s   1000000
+ 
+finding the line of regression:
+t = 0.00003n + 0.05178
+
+2.
+strace -c ./sfrobu < zero
+
+ % time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 23.53    0.000044           6         7           mmap
+ 22.46    0.000042          11         4           mprotect
+  9.09    0.000017           9         2           write
+  9.09    0.000017           9         2           open
+  9.09    0.000017          17         1           munmap
+  6.42    0.000012           4         3           fstat
+  4.81    0.000009           3         3           read
+  4.81    0.000009           2         4           brk
+  4.81    0.000009           9         1           execve
+  4.28    0.000008           8         1         1 access
+  1.07    0.000002           1         2           close
+  0.53    0.000001           1         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000187                    31         1 total
+
+
+strace -c ./sfrobu < hundred
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 62.09    0.010673          11      1009           write
+ 36.70    0.006309           6      1010           read
+  0.36    0.000062           9         7           mmap
+  0.36    0.000062          16         4           mprotect
+  0.14    0.000024           6         4           brk
+  0.13    0.000023           8         3           fstat
+  0.13    0.000022          22         1           munmap
+  0.04    0.000007           4         2           close
+  0.04    0.000007           7         1           arch_prctl
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.017189                  2045         1 total
+
+
+ strace -c ./sfrobu < Tenthousand
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 51.11    0.693850           7    103652           write
+ 48.88    0.663677           6    103654           read
+  0.00    0.000055           6        10           brk
+  0.00    0.000034          11         3           open
+  0.00    0.000019          10         2           munmap
+  0.00    0.000012           4         3           close
+  0.00    0.000011           1         8           mmap
+  0.00    0.000007           2         4           fstat
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    1.357665                207343         1 total
+
+strace -c ./sfrobu < million
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 60.64   57.027947           6  10321122           write
+ 39.35   37.007440           4  10321124           read
+  0.00    0.000693         116         6           munmap
+  0.00    0.000234         234         1           mremap
+  0.00    0.000090           8        12           mmap
+  0.00    0.000067          17         4           mprotect
+  0.00    0.000026           7         4           fstat
+  0.00    0.000024           8         3           open
+  0.00    0.000012           4         3           close
+  0.00    0.000007           7         1         1 access
+  0.00    0.000007           7         1           arch_prctl
+  0.00    0.000006           6         1           execve
+  0.00    0.000004           1         4           brk
+------ ----------- ----------- --------- --------- ----------------
+100.00   94.036557              20642286         1 total
+
+By looking at the result from strace command, we can deduce
+that my programm uses the system call mmap,mremap,munmap for memory
+allocation and reallocation and freeing memory.
+
+mmap:
+void *mmap(void *addr, size_t len, int prot, int flags,
+       int fildes, off_t off);
+
+mremap:
+void *mremap(void *old_address, size_t old_size,
+      size_t new_size, int flags, ... /* void *new_address */);
+
+munmap:
+int munmap( void * addr, size_t len );
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
