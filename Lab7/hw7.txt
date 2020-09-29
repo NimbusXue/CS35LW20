@@ -1,0 +1,95 @@
+JIAXUAN XUE
+705142227
+
+1. command used:
+   emacs hw7.txt
+
+2.command use:
+  git clone https://git.savannah.gnu.org/git/diffutils.git
+  git checkout -b quote v3.0
+
+Switched to a new branch 'quote'
+
+3.command used:
+ patch -p1 < ~/quote-3.0-patch.txt
+
+4. Learning new emacs command by testing on a real text file
+The Emacs command C-x 4 a adds a new entry to the change log file for the file you are editing (add-change-log-entry-other-window). If that file is actually a backup file, it makes an entry appropriate for the file's parent—that is useful for making log entries for functions that have been deleted in the current version.
+
+5. command used:
+ emacs ~/quote-3.0-patch.txt
+ C-x 4 a
+ ChangeLog:
+ This patch will effectively replace all the "`" in the pieces of code with "'" and  we only changes the character string constants .c files, not those in comments or documentations.
+ C-x C-s to save
+ C-x C-c to exit
+
+6. command used:
+   git add .
+   git commit -F ~/ChangeLog
+  [quote cc00b44] 2020-03-04  Jiaxuan Xue  <classjxu@lnxsrv07.seas.ucla.edu>
+ Committer: Jiaxuan Xue <classjxu@lnxsrv07.seas.ucla.edu>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 6 files changed, 43 insertions(+), 43 deletions(-)
+
+7 command used:
+git format-patch -1 --stdout > formatted-patch.txt
+
+generate the patch file like same step we did in the lab
+
+8.command used:
+git checkout -b patchery v3.0 
+git am <  ~/hw7/diffutils/formatted-patch.txt
+ ./bootstrap
+ ./configure
+ make
+ make check
+
+make check succeeds except for a few errors, so we can conclude that my patch works.
+
+9.command used:
+make distdir
+
+new directory diffutils-3.0.1-d89d was created
+ 
+cd diffutils-3.0.1-d89d
+emacs ChangeLog
+The ChangeLog contains the info I just wrote and it's exactly the same.
+
+10.commmand used:
+ssh -X classjxu@lnxsrv07.seas.ucla.edu
+export PATH=/usr/local/cs/bin:$PATH
+cd  ~eggert/src/gnu/emacs-CS-35L
+gitk
+
+I scrolled down and found out the merge
+
+Author: Joakim Verona <joakim@verona.se>  2015-01-25 12:19:27
+Committer: Joakim Verona <joakim@verona.se>  2015-01-25 12:19:27
+Parent: e5087278b9bcab5847ce63d80c0d74c27f50e719 (merge master)
+Parent: a3689d3c661fe36df971c875760f8d500b5ae994 (Count MANY function args more reliably)
+Child:  c251ec96117a847799a61338e7648da8a4ade9e0 (Fix visual glitch during webkit resizing)
+Branches: master, remotes/origin/master and many more (254)
+Follows: emacs-24.4
+Precedes: emacs-25.0.90
+
+    Merge branch 'master' into xwidget
+
+
+This mergepoint  merges branch 'master' into xwidget
+The sub windows show the clear information for all the commits and branches,
+ with the time order merge point, author and many other useful information. 
+
+
+
