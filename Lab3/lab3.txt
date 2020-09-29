@@ -1,0 +1,62 @@
+1. verifying the problem
+   command used: /usr/bin/ls -aA 
+                 /usr/bin/ls -Aa
+     the output results both contain "." and "..", so the problem still occurs.
+
+2. check the Coreutils version
+   command used: /usr/bin/ls --version
+   We got the info from the output ls (GNU coreutils) 8.22
+
+3. to download the Coreutils 8.29 source code and signature and GNU keyring
+   command used:
+   wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz
+   wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz.sig
+   wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+   gpg --verify --keyring ./gnu-keyring.gpg coreutils-8.29.tar.xz.sig
+  The last command runs without any error, so verification succeeds.
+
+4. Compile and install your copy of Coreutils 
+    into a temporary directory of my own
+   command used: mkdir coreutilsinstall
+                 tar -xJvf coreutils-8.29.tar.xz
+                 cd coreutils-8.29
+                 ./configure --prefix=/w/home.22/class/classjxu/coreutilsinstall
+                 make
+                 make install
+
+5.Reproduce the bug on your machine with the unmodified version of coreutils.
+   command used:  cd ~/coreutilsinstall
+                  ~/coreutilsinstall/bin/ls -aA
+                  ~/coreutilsinstall/bin/ls -Aa
+    output: .  ..  bin  libexec  share
+    output results both contain "." and "..", so the bug still exists.
+ 
+6.Apply the patch of Bug#30963 Message #10.
+   command used: cd coreutils-8.29
+                 emacs patch_file
+                 copy the patch into the patch_file
+                 patch -p1<patch_file
+                 
+7.Type the command make at the top level of your source tree 
+  to compiles files and keeps them up-to-date
+   command used: cd coreutils-8.29
+                 make
+  There is no need to type make clean 
+  because make offers efficient compilation: 
+  Only files that need to be recompiled.
+      
+8.Testing
+   command used:  ~/coreutils-8.29/src/ls -aA coreutilsinstall       
+   Output:bin  libexec  share
+  
+   command used:  ~/coreutils-8.29/src/ls -Aa coreutilsinstall       
+   Output:.  ..  bin  libexec  share
+   
+   orignal command used: ~/coreutilsinstall/bin/ls -aA coreutilsinstall  
+                         ~/coreutilsinstall/bin/ls -Aa coreutilsinstall  
+
+   original output: .  ..  bin  libexec  share
+
+In conclusion, problem solved, 
+-A now overrides -a if -A is in the latter position.
+                

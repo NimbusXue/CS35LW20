@@ -1,0 +1,46 @@
+Q1. The patch will the improve performance of ls because now -a 
+will no longer override -A of ls when -A is in the latter. This 
+will create more accurate result for ls output.
+
+Q2.Since -a -a will no longer override -A of ls when -A is in the
+ latter, ls -Aa and ls -aA now give out different output. Companies
+ should be more careful with this sudden change especially for 
+projects associated with directory printing.
+
+Q3. command used: ./randline.py /dev/null
+    Traceback (most recent call last):
+  File "./randline.py", line 70, in <module>
+    main()
+  File "./randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "./randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/lib64/python2.7/random.py", line 274, in choice
+    return seq[int(self.random() * len(seq))]  # raises IndexError
+ if seq is empty
+IndexError: list index out of range
+    
+   This is because /dev/null is an empty file, when we are trying
+ to choose or read line from an empty file where lines don't even
+ exist, it is going to be an undefined behavior, thus returning an 
+error.
+
+Q4.command used:python3 randline.py /dev/null
+                File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+    SyntaxError: invalid syntax
+    This time it is a syntax error, this is because python 3 and
+    python 2 are using different syntax forms.
+
+Q5. My code works well in both python2 and python3 by passing all 
+    kinds of test cases I could think of. I think this is because I
+    did not use any syntax that only works in python3. All of my code 
+    syntax works in both python2 and python3. Except for a small detail,
+    when it reports errors about missing an argument. Python2 returns
+    "option requires an argument", while python3 returns "option 
+    requires 1 argument".
+
+
+
+
